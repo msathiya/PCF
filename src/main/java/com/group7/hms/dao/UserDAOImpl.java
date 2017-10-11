@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 //import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.group7.hms.ApplicationConstants;
 import com.group7.hms.Users.*;
 import com.group7.hms.Users.User.MailingAddress;
 import com.group7.hms.appointment.Appointment;
@@ -29,7 +31,7 @@ public class UserDAOImpl implements UserDAO {
 
 	private DataSource dataSource;	
 	private JdbcTemplate jdbcTemplateObject;
-
+	public ApplicationConstants constants=new ApplicationConstants();
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		System.out.println("Datasource set");
@@ -70,15 +72,27 @@ public class UserDAOImpl implements UserDAO {
 	//new user
 	@Override
 	public void setUser(User user) throws SQLException {
+		
+		 String deletetablesql="DROP TABLE IF EXISTS user";
+		/*String createDB="CREATE DATABASE hospitalmanagement";*/
+		String createTableSQL = "CREATE table if not exists user(username varchar(255),emailid varchar(255),password varchar(255),role varchar(255),name varchar(255),status varchar(255),PhoneNumber varchar(255) ,  secondaryPhone varchar(255),  secondaryEmail varchar(255),  mailingAddress varchar(255),  ecFirstName varchar(255),  ecLastName varchar(255),  ecEmailAddress varchar(255),  ecPhoneNumber varchar(255),  Age varchar(255),  DateOfBirth varchar(255),  affiliation varchar(255),  availableDays varchar(255),  availableHours varchar(255),  certification varchar(255),  Degree varchar(255),  department varchar(255),  experience varchar(255),  specialization varchar(255), insuranceEndDate varchar(255) , insuranceStartDate varchar(255) , insuranceProvider varchar(255) , insuranceID varchar(255) , medicalHistory varchar(255) , prescriptions varchar(255),middleName varchar(255),lastName varchar(255),sex varchar(255),maritalStatus varchar(255), mobilePhoneNumber varchar(255))";
 
-		String sql = "INSERT INTO hospitalmanagement.Users "
+    	String sql = "INSERT INTO user "
 				+ "(username, emailid, password, role,name,status) VALUES (?, ?, ?, ?,?,?)";
+		/*String sql = "INSERT INTO users "
+				+ "(username, emailid, password, role,name,status) VALUES (?, ?, ?, ?,?,?)";*/
 		Connection conn = null;
+		Statement stmt = null;
 
 		try {
 			//conn = dataSource.getConnection();
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD); 
+			stmt=conn.createStatement();
+		/*	stmt.executeQuery(createDB);*/
+			stmt.executeUpdate(deletetablesql);
+			stmt.executeUpdate(createTableSQL);
 			PreparedStatement ps = conn.prepareStatement(sql);
+			System.out.println("username*****"+user.getUsername());
 			ps.setString(1, user.getUsername());
 			ps.setString(2, user.getPrimaryEmail());
 			ps.setString(3, user.getPassword());
@@ -106,7 +120,7 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public User getUserName(String email) {
 
-		String sql = "SELECT * FROM hospitalmanagement.Users WHERE emailId = ?";
+		String sql = "SELECT * FROM user WHERE emailId = ?";
 
 		Connection conn = null;
 
@@ -115,7 +129,7 @@ public class UserDAOImpl implements UserDAO {
 			 //User user = jdbcTemplateObject.queryForObject(sql, 
                   //   email, new StudentMapper());
 			//conn = dataSource.getConnection();
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			//String[] sendInfo = new String[3];
@@ -177,7 +191,7 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public List<Providers> getDoctorInfo(String dept) {
 
-		String sql = "SELECT * FROM hospitalmanagement.Users WHERE department = ? and Role = ?";
+		String sql = "SELECT * FROM user WHERE department = ? and Role = ?";
 		List<Providers> docList = new ArrayList<Providers>();
 		Connection conn = null;
 
@@ -186,7 +200,7 @@ public class UserDAOImpl implements UserDAO {
 			 //User user = jdbcTemplateObject.queryForObject(sql, 
                   //   email, new StudentMapper());
 			//conn = dataSource.getConnection();
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, dept);
 			ps.setString(2,"Doctor");
@@ -214,12 +228,12 @@ public class UserDAOImpl implements UserDAO {
 	}
 	@Override
 	public Providers getDoctorDetails(String email){
-		String sql = "SELECT * FROM hospitalmanagement.Users WHERE emailId = ?";
+		String sql = "SELECT * FROM user WHERE emailId = ?";
 
 		Connection conn = null;
 		Providers doc = new Providers();
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
@@ -254,17 +268,18 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public User getUser(String email) {
-		String sql = "SELECT * FROM hospitalmanagement.Users WHERE emailId = ?";
+		String sql = "SELECT * FROM user WHERE emailId = ?";
 		Connection conn = null;
-		
+		System.out.println("getUser**************");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()){
 				if(rs.getString("Role").equalsIgnoreCase("Doctor")||rs.getString("Role").equalsIgnoreCase("Nurse")){
+					System.out.println("if**************");
 					Providers user = new Providers(email,rs.getString("Password"),rs.getString("Role"),rs.getString("Name"));
 					// general user data
 					user.setMiddleName(rs.getString("middleName"));
@@ -298,6 +313,7 @@ public class UserDAOImpl implements UserDAO {
 					return user;
 				}
 				else if (rs.getString("Role").equalsIgnoreCase("Patient")){
+					System.out.println("else patient**************");
 					Patient user = new Patient(email,rs.getString("Password"),rs.getString("Role"),rs.getString("Name"));
 					
 					// general user data
@@ -329,6 +345,7 @@ public class UserDAOImpl implements UserDAO {
 					return user;
 				}
 				else if (rs.getString("Role").equalsIgnoreCase("Admin")){
+					System.out.println("else admin**************");
 					Administrator user = new Administrator(email,rs.getString("Password"),rs.getString("Role"),rs.getString("Name"));
 					
 					// general user data
@@ -369,15 +386,15 @@ public class UserDAOImpl implements UserDAO {
 	}
 	public void createAppointmemt(Appointment app){
 
-		String sql = "INSERT INTO hospitalmanagement.Appointments "
+		String sql = "INSERT INTO Appointment "
 				+ "(startTime, endTime, appDate, attendingDoc,attendingNurse,patient) VALUES (?, ?, ?, ?,?,?)";
-		String sqlNurse = "Select * from hospitalmanagement.users" 
+		String sqlNurse = "Select * from user" 
 				+"where role =?";
 		Connection conn = null;
 
 		try {
 			//conn = dataSource.getConnection();
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			
 			PreparedStatement ps = conn.prepareStatement(sql);
 		}catch (SQLException e) {
@@ -386,7 +403,7 @@ public class UserDAOImpl implements UserDAO {
 
 	}public void updatePatient(Patient patient) throws SQLException{
 		updateUser(patient);
-		String sql = "update hospitalmanagement.users "+
+		String sql = "update user "+
 					 "set insuranceEndDate = ? ,"+
 					 "insuranceID = ? , "+
 					 "insuranceProvider = ? , "+
@@ -396,7 +413,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EMailID = ? ";
 		Connection conn = null;
 		try{
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setDate(1, patient.getInsuranceEndDate());
 			ps.setString(2, patient.getInsuranceID());
@@ -424,7 +441,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 	public void updateAdmin(Administrator admin) throws SQLException{
 		updateUser(admin);
-		String sql = "update hospitalmanagement.users "+
+		String sql = "update user "+
 					 "set certification = ? , "+
 					 "Degree = ? ," +
 					 "department = ? ,"+
@@ -433,7 +450,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EmailID = ? ";
 		Connection conn = null;
 		try{
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, admin.getCertifications());
 			ps.setString(2, admin.getDegree());
@@ -460,7 +477,7 @@ public class UserDAOImpl implements UserDAO {
 
 	public void updateProvider(Providers provider) throws SQLException{
 		updateUser(provider);
-		String sql = "update hospitalmanagement.users "+
+		String sql = "update user "+
 					 "set affiliation = ? , "+
 					 "Degree = ? , "+
 					 "availableDays = ? , " +
@@ -473,7 +490,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EmailID = ? ";
 		Connection conn = null;
 		try{
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, provider.getAffiliation());
 			ps.setString(2, provider.getDegree());
@@ -501,7 +518,7 @@ public class UserDAOImpl implements UserDAO {
 		}
 	}
 	public void updateUser(User user) throws SQLException{
-		String sql = "update hospitalmanagement.users "+
+		String sql = "update user "+
 					"set DateOfBirth= ? , "+
 					"MailingAddress= ? , "+
 					"ecPhoneNumber = ? , "+
@@ -521,7 +538,7 @@ public class UserDAOImpl implements UserDAO {
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setDate(1, user.getDateOfBirth());
 			ps.setString(2, user.getUserAddress().toString());
@@ -565,17 +582,17 @@ public class UserDAOImpl implements UserDAO {
 			// providerStr="Doc";
 			 String sql = null;
 			if (user.getJobTitle().equalsIgnoreCase("doctor"))
-				sql = "Select COUNT(*) from hospitalmanagement.appointments "
+				sql = "Select COUNT(*) from Appointment "
 					+ "where (appDate between ? and ?) and attendingDoc = ? ";
 			else 
-				sql =  "Select COUNT(*) from hospitalmanagement.appointments "
+				sql =  "Select COUNT(*) from appointment "
 						+ "where (appDate between ? and ?) and attendingNurse = ? ";
 			
 			Connection conn = null;
 			ResultSet rs = null;
 			int numApp=0;
 			try {
-				conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+				 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 				PreparedStatement ps = conn.prepareStatement(sql);
 				
 				ps.setDate(1, beginMonth);
@@ -605,11 +622,11 @@ public class UserDAOImpl implements UserDAO {
 		
 	}
 	public Providers getNurse(){
-		String sql = "SELECT * FROM hospitalmanagement.Users WHERE Role = ?";
+		String sql = "SELECT * FROM user WHERE Role = ?";
 		Connection conn = null;
 		
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "Nurse");
 			ResultSet rs = ps.executeQuery();

@@ -125,14 +125,15 @@ public class UserProfileController {
 		
 		User user = daoObject.getUser(email);
 		model.addAttribute("user", user);
+	
 		System.out.println("***************getJobTitle****************"+user.getJobTitle());
-		if (user.getJobTitle() !=null && user.getJobTitle().equalsIgnoreCase("Patient")){
+		if (user.getJobTitle().equalsIgnoreCase("Patient")){
 			model.addAttribute("patient",user);
 			model.addAttribute("viewName", "updatePatientProfile");
 			//model.addAttribute("viewName","home");
 			System.out.println(user);
 		}
-		else if( user.getJobTitle().equalsIgnoreCase("Doctor")||user.getJobTitle().equalsIgnoreCase("Nurse")){
+		else if(user.getJobTitle().equalsIgnoreCase("Doctor")||user.getJobTitle().equalsIgnoreCase("Nurse")){
 			model.addAttribute("provider", user);
 			model.addAttribute("viewName","updateProviderProfile");
 			System.out.println(user);

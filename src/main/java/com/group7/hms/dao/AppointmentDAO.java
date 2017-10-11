@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 //import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.group7.hms.ApplicationConstants;
 import com.group7.hms.Users.*;
 import com.group7.hms.appointment.Appointment;
 
@@ -26,7 +28,7 @@ public class AppointmentDAO{
 
 	private DataSource dataSource;	
 	private JdbcTemplate jdbcTemplateObject;
-
+	public ApplicationConstants constants=new ApplicationConstants();
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		System.out.println("Datasource set");
@@ -35,11 +37,16 @@ public class AppointmentDAO{
 	}
 
 	public void createAppointment(Appointment app){
-		String sql = "INSERT INTO hospitalmanagement.appointments "
+		String createTableSQL ="CREATE table if not exists appointment (appDay varchar(255),startTime varchar(255),endTime varchar(255),appDate varchar(255),attendingDoc varchar(255),DoctorName varchar(255),attendingNurse varchar(255),NurseName varchar(255),patient varchar(255),patientName varchar(255),idAppointments varchar(255),DoctorsNotes varchar(255),Cost varchar(255))";
+		String sql = "INSERT INTO appointment "
 				+ "(startTime, endTime, appDate, appDay,attendingDoc, DoctorName, attendingNurse, NurseName, patient, patientName, statusApp, DoctorsNotes, Cost) VALUES (?, ?, ?, ?,?,?,? ,?, ?, ?, ?, ?, ?)";
 		Connection conn = null;
+		Statement stmt = null;
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274");
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			stmt=conn.createStatement();
+			/*	stmt.executeQuery(createDB);*/
+				stmt.executeUpdate(createTableSQL);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setTime(1, app.getStartTime());
 			ps.setTime(2, app.getEndTime());
@@ -66,24 +73,29 @@ public class AppointmentDAO{
 
 	public List<Appointment> getAppointments(String emailaddress, String role)
 	{
+		String deleteAppoinmentsql="DROP TABLE IF EXISTS appointment";
+		String createAppointmentsql="create table if not exists appointment (appDay varchar(255),startTime varchar(255),endTime varchar(255),appDate varchar(255),attendingDoc varchar(255),DoctorName varchar(255),attendingNurse varchar(255),NurseName varchar(255),patient varchar(255),patientName varchar(255),idAppointments varchar(255),DoctorsNotes varchar(255),Cost varchar(255),statusApp varchar(255))";
 		String sql =  null;
 		List<Appointment> appList = new ArrayList<Appointment>();
 		if (role.equalsIgnoreCase("Patient"))
-			sql = "Select * from HospitalManagement.appointments where Patient = ? and statusApp = ? "
+			sql = "Select * from appointment where Patient = ? and statusApp = ? "
 					+ "ORDER BY appDate DESC ";	
 		else if (role.equalsIgnoreCase("Doctor"))
-			sql = "Select * from HospitalManagement.appointments where attendingDoc = ? and statusApp = ? "
+			sql = "Select * from appointment where attendingDoc = ? and statusApp = ? "
 					+ "ORDER BY appDate DESC ";	
 		else if (role.equalsIgnoreCase("Nurse"))
-			sql = "Select * from HospitalManagement.appointments where attendingNurse = ? and statusApp = ? "
+			sql = "Select * from appointment where attendingNurse = ? and statusApp = ? "
 					+ "ORDER BY appDate DESC ";
 		else 
-			sql = "Select * from HospitalManagement.appointments where statusApp <> ? order by appDate ASC";
+			sql = "Select * from appointment where statusApp <> ? order by appDate ASC";
 	
 	Connection conn = null;
-
+    Statement stmt=null;
 	try {
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+	    stmt=conn.createStatement();
+	    stmt.executeUpdate(deleteAppoinmentsql);
+		stmt.executeUpdate(createAppointmentsql);
 		PreparedStatement ps = conn.prepareStatement(sql);
 		System.out.println(ps);
 		if(!(role.equalsIgnoreCase("Admin"))){
@@ -130,12 +142,12 @@ public class AppointmentDAO{
 		String sql =  null;
 		System.out.println(emailAddress +"in get billed app");
 		List<Appointment> billedList = new ArrayList<Appointment>();
-			sql = "Select * from HospitalManagement.appointments where Patient = ? and statusApp = ? "
+			sql = "Select * from appointment where Patient = ? and statusApp = ? "
 					+ "ORDER BY appDate DESC ";	
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+				conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 				ps.setString(1, emailAddress);
 				ps.setString(2, "ReleasedBill");		
@@ -174,12 +186,12 @@ public class AppointmentDAO{
 		return billedList;
 	}
 	public void releasePatient(String patientEmail){
-		String sql = "UPDATE hospitalManagement.appointments SET statusApp = ? where patient= ? and statusApp = ? "
+		String sql = "UPDATE appointment SET statusApp = ? where patient= ? and statusApp = ? "
 				+ " OR statusApp = ?";
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274"); 
+				conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedByDoc");
 			ps.setString(2, patientEmail);
@@ -191,11 +203,11 @@ public class AppointmentDAO{
 	}
 	}
 	public void releaseBill(String patientEmail){
-		String sql = "UPDATE hospitalManagement.appointments SET statusApp = ? where patient= ? and statusApp = ?";
+		String sql = "UPDATE appointment SET statusApp = ? where patient= ? and statusApp = ?";
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274");
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedBill");
 			ps.setString(2, patientEmail);
@@ -206,11 +218,11 @@ public class AppointmentDAO{
 	}
 	}
 	public void payBill(String patientEmail){
-		String sql = "UPDATE hospitalManagement.appointments SET statusApp = ? where patient= ? and statusApp = ?";
+		String sql = "UPDATE appointment SET statusApp = ? where patient= ? and statusApp = ?";
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274");
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "Paid");
 			ps.setString(2, patientEmail);
@@ -222,12 +234,12 @@ public class AppointmentDAO{
 	}
 		
 	public void saveAppointmentRecord(String doctorNotes,int cost, int appId){
-		String sql = "UPDATE hospitalManagement.appointments SET statusApp = ? , cost = ?"
+		String sql = "UPDATE appointment SET statusApp = ? , cost = ?"
 				+ " , doctorsNotes = ? where idAppointments = ?";
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274");
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "InCare");
 			ps.setInt(2, cost);
@@ -240,11 +252,11 @@ public class AppointmentDAO{
 		
 	}
 	public List<String> getReleasedPatient(){
-		String sql = "select distinct patient from hospitalManagement.appointments where statusApp = ?;";
+		String sql = "select distinct patient from appointment where statusApp = ?;";
 		Connection conn = null;
 		List<String> userNames = new ArrayList<String>();
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","Success@274");
+			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedByDoc");
 			ResultSet rs = ps.executeQuery();

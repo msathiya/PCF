@@ -1,6 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<form:form id = "profile" method="POST" action="/hms/profile">
+<form:form id = "profile" method="POST" action="/profile">
 
 	<fieldset>
 		<legend>Login</legend>

@@ -6,9 +6,9 @@
 	
   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
       <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-      <property name="url" value="jdbc:mysql://localhost:3306/"/>
-      <property name="username" value="root"/>
-      <property name="password" value="sept"/>
+      <property name="url" value="jdbc:mysql://10.0.16.54:3306/cf_7466169b_0c0e_4365_95d5_6e63b2b7b567?user=Igl7p52G7DUIKoSz\\u0026password=oaLXhEG1oyHxOswc"/>
+      <property name="username" value="Igl7p52G7DUIKoSz"/>      
+      <property name="password" value="oaLXhEG1oyHxOswc"/>
    </bean>
    
 
