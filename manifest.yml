@@ -1,6 +1,7 @@
+---
 applications:
 - name: Hospital-Management
   memory: 1G
   instances: 1
-  host: hms
+  host: HospitalManagement
   path: target/hms-1.0.0-BUILD-SNAPSHOT.war
