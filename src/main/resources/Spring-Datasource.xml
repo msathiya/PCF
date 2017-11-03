@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 	
@@ -9,10 +10,39 @@
       <property name="url" value="jdbc:mysql://10.0.16.54:3306/cf_7466169b_0c0e_4365_95d5_6e63b2b7b567?user=Igl7p52G7DUIKoSz\\u0026password=oaLXhEG1oyHxOswc"/>
       <property name="username" value="Igl7p52G7DUIKoSz"/>
       <property name="password" value="oaLXhEG1oyHxOswc"/>
-   </bean>
+   </bean> -->
+
+
+
   
+<!--   <context:property-placeholder location="classpath:application.properties" />
+     
+    <bean id="dbConfig" class="com.group7.hms.DatabaseConfig">
+        <property name="dburl" value="${spring.datasource.url}"/>    
+        <property name="dbusername" value="${spring.datasource.username}"/>
+        <property name="dbPassword" value="${spring.datasource.password}"/>
+    </bean>
+    
      <bean id="UserDAO" class="com.group7.hms.dao.UserDAOImpl">
    <property name="dataSource" ref="dataSource"/>
    </bean>
 
+</beans> -->
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+ 
+    <context:property-placeholder location="classpath:application.properties" />
+     
+    <bean id="dbConfig" class="com.group7.hms.DatabaseConfig">
+        <property name="dburl" value="${datasource.url}"/>    
+        <property name="dbusername" value="${datasource.username}"/>
+        <property name="dbPassword" value="${datasource.password}"/>
+    </bean>
 </beans>

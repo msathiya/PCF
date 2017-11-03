@@ -14,11 +14,14 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 //import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.group7.hms.ApplicationConstants;
+import com.group7.hms.DatabaseConfig;
 import com.group7.hms.Users.*;
 import com.group7.hms.appointment.Appointment;
 
@@ -28,13 +31,20 @@ public class AppointmentDAO{
 
 	private DataSource dataSource;	
 	private JdbcTemplate jdbcTemplateObject;
-	public ApplicationConstants constants=new ApplicationConstants();
-	@Autowired
+ //   public ApplicationConstants constants=new ApplicationConstants();
+/*private DatabaseConfig databaseConfig=new DatabaseConfig();*/
+	String confFile = "Spring-Datasource.xml";
+    ConfigurableApplicationContext context 
+                            = new ClassPathXmlApplicationContext(confFile);
+    DatabaseConfig databaseConfig = (DatabaseConfig) context.getBean("dbConfig");
+   
+	
+/*	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		System.out.println("Datasource set");
 		this.dataSource = dataSource;
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
-	}
+	}*/
 
 	public void createAppointment(Appointment app){
 		String createTableSQL ="CREATE table if not exists appointment (appDay varchar(255),startTime varchar(255),endTime varchar(255),appDate varchar(255),attendingDoc varchar(255),DoctorName varchar(255),attendingNurse varchar(255),NurseName varchar(255),patient varchar(255),patientName varchar(255),idAppointments varchar(255),DoctorsNotes varchar(255),Cost varchar(255))";
@@ -43,7 +53,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 		Statement stmt = null;
 		try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+		    conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			stmt=conn.createStatement();
 			/*	stmt.executeQuery(createDB);*/
 				stmt.executeUpdate(createTableSQL);
@@ -92,7 +103,9 @@ public class AppointmentDAO{
 	Connection conn = null;
     Statement stmt=null;
 	try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+		 System.out.println(databaseConfig.toString());
+		/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+		 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 	    stmt=conn.createStatement();
 	    stmt.executeUpdate(deleteAppoinmentsql);
 		stmt.executeUpdate(createAppointmentsql);
@@ -147,7 +160,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 
 		try {
-				conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+		     conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 				ps.setString(1, emailAddress);
 				ps.setString(2, "ReleasedBill");		
@@ -191,7 +205,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 
 		try {
-				conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+			 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedByDoc");
 			ps.setString(2, patientEmail);
@@ -207,7 +222,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+    		/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+			 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedBill");
 			ps.setString(2, patientEmail);
@@ -222,7 +238,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+		  /*  conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+			 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "Paid");
 			ps.setString(2, patientEmail);
@@ -239,7 +256,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+			 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "InCare");
 			ps.setInt(2, cost);
@@ -256,7 +274,8 @@ public class AppointmentDAO{
 		Connection conn = null;
 		List<String> userNames = new ArrayList<String>();
 		try {
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+     		/*conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);*/
+			 conn = DriverManager.getConnection(databaseConfig.getDburl(),databaseConfig.getDbusername(),databaseConfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "ReleasedByDoc");
 			ResultSet rs = ps.executeQuery();

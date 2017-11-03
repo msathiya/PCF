@@ -16,10 +16,13 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 //import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.group7.hms.DatabaseConfig;
 import com.group7.hms.ApplicationConstants;
 import com.group7.hms.Users.*;
 import com.group7.hms.Users.User.MailingAddress;
@@ -31,13 +34,21 @@ public class UserDAOImpl implements UserDAO {
 
 	private DataSource dataSource;	
 	private JdbcTemplate jdbcTemplateObject;
-	public ApplicationConstants constants=new ApplicationConstants();
-	@Autowired
+	/*public ApplicationConstants constants=new ApplicationConstants();*/
+	//private databaseconfig databaseconfig=new databaseconfig();
+	
+	String confFile = "Spring-Datasource.xml";
+    ConfigurableApplicationContext context 
+                            = new ClassPathXmlApplicationContext(confFile);
+    DatabaseConfig databaseconfig = (DatabaseConfig) context.getBean("dbConfig");
+    
+    
+	/*@Autowired
 	public void setDataSource(DataSource dataSource) {
 		System.out.println("Datasource set");
 		this.dataSource = dataSource;
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
-	}
+	}*/
 
 @Override
 	public void updateUser(String emailaddress,String password, String fName, String lName,
@@ -85,8 +96,9 @@ public class UserDAOImpl implements UserDAO {
 		Statement stmt = null;
 
 		try {
+		     	       
 			//conn = dataSource.getConnection();
-			conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD); 
+          	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			stmt=conn.createStatement();
 		/*	stmt.executeQuery(createDB);*/
 			stmt.executeUpdate(deletetablesql);
@@ -129,7 +141,7 @@ public class UserDAOImpl implements UserDAO {
 			 //User user = jdbcTemplateObject.queryForObject(sql, 
                   //   email, new StudentMapper());
 			//conn = dataSource.getConnection();
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			//String[] sendInfo = new String[3];
@@ -200,7 +212,7 @@ public class UserDAOImpl implements UserDAO {
 			 //User user = jdbcTemplateObject.queryForObject(sql, 
                   //   email, new StudentMapper());
 			//conn = dataSource.getConnection();
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, dept);
 			ps.setString(2,"Doctor");
@@ -233,7 +245,7 @@ public class UserDAOImpl implements UserDAO {
 		Connection conn = null;
 		Providers doc = new Providers();
 		try {
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
@@ -272,7 +284,7 @@ public class UserDAOImpl implements UserDAO {
 		Connection conn = null;
 		System.out.println("getUser**************");
 		try {
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
@@ -394,7 +406,7 @@ public class UserDAOImpl implements UserDAO {
 
 		try {
 			//conn = dataSource.getConnection();
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			
 			PreparedStatement ps = conn.prepareStatement(sql);
 		}catch (SQLException e) {
@@ -413,7 +425,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EMailID = ? ";
 		Connection conn = null;
 		try{
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setDate(1, patient.getInsuranceEndDate());
 			ps.setString(2, patient.getInsuranceID());
@@ -450,7 +462,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EmailID = ? ";
 		Connection conn = null;
 		try{
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, admin.getCertifications());
 			ps.setString(2, admin.getDegree());
@@ -490,7 +502,7 @@ public class UserDAOImpl implements UserDAO {
 					 "where EmailID = ? ";
 		Connection conn = null;
 		try{
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, provider.getAffiliation());
 			ps.setString(2, provider.getDegree());
@@ -538,7 +550,7 @@ public class UserDAOImpl implements UserDAO {
 		Connection conn = null;
 
 		try {
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setDate(1, user.getDateOfBirth());
 			ps.setString(2, user.getUserAddress().toString());
@@ -592,7 +604,7 @@ public class UserDAOImpl implements UserDAO {
 			ResultSet rs = null;
 			int numApp=0;
 			try {
-				 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+				 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 				PreparedStatement ps = conn.prepareStatement(sql);
 				
 				ps.setDate(1, beginMonth);
@@ -626,7 +638,7 @@ public class UserDAOImpl implements UserDAO {
 		Connection conn = null;
 		
 		try {
-			 	conn = DriverManager.getConnection(constants.DB_URL,constants.USERNAME,constants.PASSWORD);
+			 	conn = DriverManager.getConnection(databaseconfig.getDburl(),databaseconfig.getDbusername(),databaseconfig.getDbPassword());
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, "Nurse");
 			ResultSet rs = ps.executeQuery();
